@@ -5,6 +5,7 @@
 #include "assert.h"
 #include "CurrentThread.h"
 #include "Epoll.h"
+#include "Thread.h"
 
 class EventLoop {
 public:

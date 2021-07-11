@@ -24,7 +24,7 @@ Epoll::~Epoll() {}
 void Epoll::epoll_add(SP_Channel request, int timeout) {
 	int fd = request -> getFd();
 	if(timeout > 0) {
-		add_timer(request, timeout);
+		//add_timer(request, timeout);
 		//fd2http_[fd] = request -> getHolder();
 	}
 	struct epoll_event event;
@@ -39,7 +39,7 @@ void Epoll::epoll_add(SP_Channel request, int timeout) {
 
 //修改描述符状态
 void Epoll::epoll_mod(SP_Channel request, int timeout) {
-	if(timeout > 0) add_timer(request, timeout);
+	if(timeout > 0) //add_timer(request, timeout);
 	int fd = request -> getFd();
 
 }
@@ -62,8 +62,8 @@ std::vector<SP_Channel> Epoll::poll() {
 	while(true) {
 		int event_count = epoll_wait(epollFd_, &*events_.begin(), events_.size(), EPOLLWAIT_TIME);
 		if(event_count < 0) perror("epoll wait error");
-		std::vector<SP_Channel> req_data = getEventsRequest(event_count);
-		if(req_data.size() > 0) return req_data;
+		//std::vector<SP_Channel> req_data = getEventsRequest(event_count);
+		//if(req_data.size() > 0) return req_data;
 	}
 }
 
@@ -71,8 +71,17 @@ std::vector<SP_Channel> Epoll::poll() {
 
 //分发处理函数
 /*
-std::vector<SP_Channel> Epoll::getEventRequest(int events_num) {
-	
+std::vector<SP_Channel> Epoll::getEventsRequest(int events_num) {
+	std::vector<SP_Channel> req_data;
+	for(int i = 0; i < events_num; ++i) {
+		int fd = events_[i].data.fd;
+		SP_Channel cur_req = fd2chan_[fd];
+		if(cur_req) {
+			cur_req -> setRevents(events_[i].events);
+			cur_req -> setEvents(0);
+			req_data.push_back(cur_req);
+		}
+	}
 }
 
 void Epoll::add_timer(SP_Channel request_data, int timeout) {

@@ -1,18 +1,18 @@
 #ifndef CURRENT_THREAD_H
 #define CURRENT_THREAD_H
 
-#include<stdint.h>
+#include <stdint.h>
 
 namespace CurrentThread {
 	extern __thread int t_cachedTid;
 	extern __thread char t_tidString[32];
 	extern __thread int t_tidStringLength;
 	extern __thread const char* t_threadName;
-	void cachedTid();	//定义在Thread.cpp
+	void cacheTid();	//定义在Thread.cpp
 
 	inline int tid() {
 		if(__builtin_expect(t_cachedTid == 0, 0)) {
-			cachedTid();
+			cacheTid();
 		}
 		return t_cachedTid;
 	}

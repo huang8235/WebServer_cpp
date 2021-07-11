@@ -15,6 +15,7 @@ int main() {
 	g_loop = &loop;
 
 	int timerfd = ::timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK | TFD_CLOEXEC);
+	
 	Channel channel(&loop, timerfd);
 	channel.setReadHandler(timeout);
 
@@ -24,6 +25,7 @@ int main() {
 	::timerfd_settime(timerfd, 0, &howlong, NULL);
 
 	loop.loop();
+	std::cout<<"loop run..."<<std::endl;
 
 	::close(timerfd);
 }
