@@ -54,3 +54,14 @@ void Channel::handleEvents() {
 	}
 	handleConn();
 }
+
+void Channel::addEvents() {
+	events_ = EPOLLIN;	
+	loop_ -> poller_ -> epoll_add(this, 0);
+}
+
+
+void Channel::update() {
+	events_ = EPOLLIN;	
+	loop_ -> updateChannel(this);
+}

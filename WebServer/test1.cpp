@@ -18,6 +18,8 @@ int main() {
 	
 	Channel channel(&loop, timerfd);
 	channel.setReadHandler(timeout);
+	//channel.addEvents();
+	channel.update();
 
 	struct itimerspec howlong;
 	bzero(&howlong, sizeof howlong);

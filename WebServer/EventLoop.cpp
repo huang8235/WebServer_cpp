@@ -27,6 +27,7 @@ EventLoop::~EventLoop() {
 }
 
 void EventLoop::loop() {
+	std::cout<<"loop run.."<<std::endl;
 	assert(!looping_);			//事件循环前要进行检查，确保调用该事件循环的线程
 	assert(isInLoopThread());	//就是该EventLoop所属的线程。
 	looping_ = true;
@@ -34,10 +35,12 @@ void EventLoop::loop() {
 	
 	//::poll(NULL, 0, 5 * 1000);
 	//事件循环要做的事写在这里
-	std::vector<SP_Channel> ret;
+	std::vector<Channel*> ret;
 	while(!quit_) {
+		std::cout<<"handling event.."<<std::endl;
 		ret.clear();
 		ret = poller_ -> poll();
+		std::cout<<"poll done.."<<std::endl;
 		for(auto& it : ret) it -> handleEvents();
 		//poller_ -> handleExpired();
 	}
@@ -50,4 +53,8 @@ void EventLoop::quit() {
 	if(!isInLoopThread()) {
 		//wakeup();
 	}
+}
+
+void EventLoop::updateChannel(Channel* channel) {
+	poller_ -> epoll_add(channel, 0);	
 }

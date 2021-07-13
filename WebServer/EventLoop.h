@@ -9,6 +9,7 @@
 
 class EventLoop {
 public:
+	friend class Channel;
 	EventLoop();
 	~EventLoop();
 
@@ -23,6 +24,8 @@ public:
 	//EventLoop* getEventLoopOfCurrentThread();
 	
 	void quit();
+
+	void updateChannel(Channel* channel);
 private:
 	bool looping_;
 	const pid_t threadId_;	//所属线程ID

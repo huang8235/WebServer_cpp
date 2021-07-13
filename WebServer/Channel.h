@@ -1,5 +1,6 @@
 // @Author Huang Xiaohua
 // 每个Channel对象自始至终只负责一个文件描述符fd的IO事件分发
+// Channel是一个通道 连接loop和对应的fd的通道
 
 #ifndef CHANNEL_H
 #define CHANNEL_H
@@ -10,6 +11,7 @@
 #include <string>
 #include <unordered_map>
 #include "Timer.h"
+//#include "EventLoop.h"
 
 class EventLoop;
 
@@ -51,7 +53,14 @@ public:
 	void handleWrite();
 	void handleError(int fd, int err_num, std::string short_msg);
 	void handleConn();
+
+	void setRevents(__uint32_t ev) {revents_ = ev;}
+	void setEvents(__uint32_t ev) {events_ = ev;}
+	__uint32_t &getEvents() {return events_;}
 	__uint32_t getlastEvents() {return lastEvents_;}
+
+	void addEvents();
+	void update();
 
 private:
 	int parse_URI();
