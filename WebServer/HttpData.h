@@ -57,13 +57,13 @@ enum ConnectionState {
 	H_DISCONNECTED
 };
 
-enum HttpMethod {
+enum HttpMethod {		//请求方法
 	METHOD_POST = 1,
 	METHOD_GET,
 	METHOD_HEAD
 };
 
-enum HttpVersion {
+enum HttpVersion {		 //Http协议版本
 	HTTP_10 = 1,
 	HTTP_11
 };

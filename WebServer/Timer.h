@@ -17,7 +17,6 @@ class HttpData;
 class TimerNode {
 public:
 	TimerNode(int rot, int ts);
-	~TimerNode();
 public:
 	TimerNode* next;	//指向下一个定时器
 	TimerNode* prev;	//指向下一个定时器

@@ -10,3 +10,5 @@ Channel.o: Channel.cpp EventLoop.h Epoll.h
 	g++ -c $< -o $@
 Epoll.o: Epoll.cpp EventLoop.h Channel.h
 	g++ -c $< -o $@
+Timer.o: Timer.cpp Timer.h
+	g++ -c $< -o $@

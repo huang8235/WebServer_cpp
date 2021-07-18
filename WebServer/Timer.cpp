@@ -1,4 +1,5 @@
 #include "Timer.h"
+#include <iostream>
 
 
 TimerNode::TimerNode(int rot, int ts)
@@ -83,6 +84,7 @@ void TimeWheel::tick() {
 		/* 否则，说明定时器到期，则执行定时任务，然后删除该定时器 */
 		else{
 			//tmp->cb_func(tmp->user_data);	//执行回调函数
+			std::cout<<"time out!!!"<<std::endl;
 			if(tmp == slots[cur_slot]) {
 				slots[cur_slot] = tmp->next;
 				delete tmp;

@@ -3,9 +3,9 @@
 
 #include <functional>
 #include "assert.h"
-#include "CurrentThread.h"
+#include "base/CurrentThread.h"
 #include "Epoll.h"
-#include "Thread.h"
+#include "base/Thread.h"
 
 class EventLoop {
 public:
@@ -26,6 +26,16 @@ public:
 	void quit();
 
 	void updateChannel(Channel* channel);
+
+	void removeFromPoller(std::shared_ptr<Channel> channel) {
+		poller_ -> epoll_del(channel);
+	}
+	void updatePoller(std::shared_ptr<Channel> channel, int timeout) {
+		poller_ -> epoll_mod(channel, timeout);
+	}
+	void addToPoller(std::shared_ptr<Channel> channel, int timeout) {
+		poller_ -> epoll_add(channel, timeout);
+	}
 private:
 	bool looping_;
 	const pid_t threadId_;	//所属线程ID
