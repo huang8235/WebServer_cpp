@@ -1,8 +1,10 @@
 #include "Server.h"
+#include "Util.h"
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <functional>
+#include <memory.h>
 
 
 Server::Server(EventLoop* loop, int threadNum, int port)
@@ -28,5 +30,30 @@ void Server::start() {
 	acceptChannel_ -> setConnHandler(std::bind(&Server::handThisConn,this));
 	loop_ -> addToPoller(acceptChannel_, 0);
 	started_ =true;
+}
 
+void Server::handNewConn() {
+	struct sockaddr_in client_addr;
+	memset(&client_addr, 0, sizeof(struct sockaddr_in));
+	socklen_t client_addr_len = sizeof(client_addr);
+	int accept_fd = 0;
+	while((accept_fd = accept(listenFd_, (struct sockaddr*)&client_addr, &client_addr_len)) > 0) {
+		EventLoop *loop = eventLoopThreadPool_ -> getNextLoop();
+
+		if(accept_fd >= MAXFDS) {
+			close(accept_fd);
+			continue;
+		}
+
+		if(setSocketNonBlocking(accept_fd) < 0) {
+			return;
+		}
+
+		setSocketNodelay(accept_fd);
+
+		std::shared_ptr<HttpData> req_info(new HttpData(loop, accept_fd));
+		req_info -> getChannel() -> setHolder(req_info);
+		loop -> queueInLoop(std::bind(&HttpData::newEvent, req_info));
+	}
+	acceptChannel_ -> setEvents(EPOLLIN | EPOLLET);
 }

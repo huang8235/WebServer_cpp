@@ -11,9 +11,9 @@
 #include <string>
 #include <unordered_map>
 #include "Timer.h"
-//#include "EventLoop.h"
 
 class EventLoop;
+class HttpData;
 
 
 class Channel {
@@ -25,7 +25,8 @@ private:
 	__uint32_t revents_;	//目前活动的事件
 	__uint32_t lastEvents_;
 
-	//std::weak_ptr<HttpData> holder_;
+	//方便找到上层持有该Channel的对象
+	std::weak_ptr<HttpData> holder_;
 	
 public:
 	Channel(EventLoop* loop, int fd);
@@ -33,6 +34,12 @@ public:
 	~Channel();
 	int getFd();
 	void setFd(int fd);
+
+	void setHolder(std::shared_ptr<HttpData> holder) {holder_ = holder;}
+	std::shared_ptr<HttpData> getHolder() {
+		std::shared_ptr<HttpData> ret(holder_.lock());
+		return ret;
+	}
 
 	void setReadHandler(CallBack &&readHandler) {
 		readHandler_ = readHandler;
@@ -59,8 +66,12 @@ public:
 	__uint32_t &getEvents() {return events_;}
 	__uint32_t getlastEvents() {return lastEvents_;}
 
-	void addEvents();
-	void update();
+	bool EqualAndUpdateLastEvents() {
+		bool ret = (lastEvents_ == events_);
+		lastEvents_ = events_;
+		return ret;
+	}
+
 
 private:
 	int parse_URI();

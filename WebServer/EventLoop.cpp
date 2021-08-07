@@ -26,8 +26,38 @@ EventLoop::~EventLoop() {
 	t_loopInThisThread = NULL;
 }
 
+void EventLoop::wakeup() {
+	uint64_t one = 1;
+	ssize_t n = writen(wakeupFd_, (char*)(&one), sizeof one);
+	if(n != sizeof one) {
+		std::cout << "EventLoop::wakeup() writes" << n << "bytes instead of 8" << std::endl;
+	}
+}
+
+void EventLoop::handleRead() {
+	uint64_t one = 1;
+	ssize_t n = readn(wakeupFd_, &one, sizeof one);
+	if(n != sizeof one) {
+		std::cout << "EventLoop::handleRead() reads" << n << "bytes instead of 8" << std::endl;
+	}
+	pwakeupChannel_ -> setEvents(EPOLLIN | EPOLLET);
+}
+
+void EventLoop::runInLoop(Functor&& cb) {
+	if(isInLoopThread())	cb();
+	else 					queueInLoop(std::move(cb));
+}
+
+void EventLoop::queueInLoop(Functor&& cb) {
+	{
+		MutexLockGuard lock(mutex_);
+		pendingFunctors_.emplace_back(std::move(cb));
+	}
+
+	if(!isInLoopThread() || callingPendingFunctors_) wakeup();
+}
+
 void EventLoop::loop() {
-	std::cout<<"loop run.."<<std::endl;
 	assert(!looping_);			//事件循环前要进行检查，确保调用该事件循环的线程
 	assert(isInLoopThread());	//就是该EventLoop所属的线程。
 	looping_ = true;
@@ -35,14 +65,16 @@ void EventLoop::loop() {
 	
 	//::poll(NULL, 0, 5 * 1000);
 	//事件循环要做的事写在这里
-	std::vector<Channel*> ret;
+	std::vector<SP_Channel> ret;
 	while(!quit_) {
-		std::cout<<"handling event.."<<std::endl;
+		//std::cout<<"handling event.."<<std::endl;
 		ret.clear();
 		ret = poller_ -> poll();
-		std::cout<<"poll done.."<<std::endl;
+		eventHandling_ = true;
 		for(auto& it : ret) it -> handleEvents();
-		//poller_ -> handleExpired();
+		eventHandling_ = false;
+		doPendingFunctors();
+		poller_ -> handleExpired();
 	}
 
 	looping_ = false;
@@ -55,6 +87,8 @@ void EventLoop::quit() {
 	}
 }
 
+/*
 void EventLoop::updateChannel(Channel* channel) {
 	poller_ -> epoll_add(channel, 0);	
 }
+*/

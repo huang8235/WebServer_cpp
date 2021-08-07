@@ -17,7 +17,7 @@ class Channel;
 enum ProcessState {
 	STATE_PARSE_URI = 1,
 	STATE_PARSE_HEADERS,
-	STATE_PARSE_BODY,
+	STATE_RECV_BODY,
 	STATE_ANALYSIS,
 	STATE_FINISH
 };
@@ -110,7 +110,7 @@ private:
 	ProcessState state_;
 	ParseState hState_;
 
-	std::string filename_;
+	std::string fileName_;
 	std::string path_;
 	int nowReadPos_;
 	bool keepAlive_;
@@ -123,7 +123,7 @@ private:
 	void handleError(int fd, int err_num, std::string short_msg);
 	URIState parseURI();
 	HeaderState parseHeaders();
-	AnalysisState analysisRequset();
+	AnalysisState analysisRequest();
 };
 
 

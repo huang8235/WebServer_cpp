@@ -35,7 +35,7 @@ int main(int argc, char* argv[]) {
 	}
 
 #ifndef _PTHREADS
-	LOG << "_PTHREADS is not defined !";
+	std::cout << "_PTHREADS is not defined !" << std::endl;
 #endif
 
 	EventLoop mainLoop;

@@ -4,7 +4,8 @@
 #include <queue>
 
 #include "EventLoop.h"
-#include "Channel.h"
+#include "Epoll.h"
+#include "Util.h"
 
 Channel::Channel(EventLoop* loop)
 	: loop_(loop), fd_(0), events_(0), lastEvents_(0) {}
@@ -55,13 +56,3 @@ void Channel::handleEvents() {
 	handleConn();
 }
 
-void Channel::addEvents() {
-	events_ = EPOLLIN;	
-	loop_ -> poller_ -> epoll_add(this, 0);
-}
-
-
-void Channel::update() {
-	events_ = EPOLLIN;	
-	loop_ -> updateChannel(this);
-}
