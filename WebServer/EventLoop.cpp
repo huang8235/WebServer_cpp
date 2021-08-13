@@ -51,10 +51,10 @@ void EventLoop::runInLoop(Functor&& cb) {
 void EventLoop::queueInLoop(Functor&& cb) {
 	{
 		MutexLockGuard lock(mutex_);
-		pendingFunctors_.emplace_back(std::move(cb));
+		pendingFunctors_.emplace_back(std::move(cb)); //把实参传递给构造函数,move是数据转移
 	}
 
-	if(!isInLoopThread() || callingPendingFunctors_) wakeup();
+	if(!isInLoopThread() || callingPendingFunctors_) wakeup();//唤醒fd写入数据
 }
 
 void EventLoop::loop() {
@@ -87,8 +87,13 @@ void EventLoop::quit() {
 	}
 }
 
-/*
-void EventLoop::updateChannel(Channel* channel) {
-	poller_ -> epoll_add(channel, 0);	
+void EventLoop::doPendingFunctors() {
+	std::vector<Functor> functors;
+	callingPendingFunctors_ = true;
+	{
+		MutexLockGuard lock(mutex_);
+		functors.swap(pendingFunctors_);
+	}
+	for(size_t i = 0; i < functors.size(); ++i)	functors[i]();
+	callingPendingFunctors_ = false;
 }
-*/

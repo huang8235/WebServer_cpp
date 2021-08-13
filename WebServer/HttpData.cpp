@@ -285,7 +285,7 @@ URIState HttpData::parseURI() {
 	if(pos < 0) {
 		return PARSE_URI_AGAIN;
 	}
-	string request_line = str.substr(0, pos);
+	std::string request_line = str.substr(0, pos);
 	if(str.size() > pos + 1)
 		str = str.substr(pos + 1);
 	else

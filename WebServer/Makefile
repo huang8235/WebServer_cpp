@@ -1,14 +1,24 @@
-test1: test1.o EventLoop.o Channel.o Epoll.o Thread.o
-	g++ -o $@ $^
-test1.o: test1.cpp EventLoop.h Channel.h Epoll.h
-	g++ -c $< -o $@
-Thread.o: Thread.cpp Thread.h CurrentThread.h
-	g++ -c $< -o $@
-EventLoop.o: EventLoop.cpp Channel.h Epoll.h CurrentThread.h Thread.h
-	g++ -c $< -o $@
-Channel.o: Channel.cpp EventLoop.h Epoll.h
-	g++ -c $< -o $@
-Epoll.o: Epoll.cpp EventLoop.h Channel.h
-	g++ -c $< -o $@
-Timer.o: Timer.cpp Timer.h
-	g++ -c $< -o $@
+CC:= g++
+CFLAGS:= -g -Wall -std=c++11 -g
+LIBS:= -lpthread
+
+TARGET = MyServer
+SOURCE := $(wildcard *.cpp base/*.cpp)
+BASE := $(basename $(SOURCE))
+OBJS := $(addsuffix .o, $(addprefix obj/, $(BASE)))
+
+.PHONY: all objs clean
+all: $(TARGET)
+objs: $(OBJS)
+clean:
+	-rm -f $(TARGET)
+	-rm -f obj/*.o
+
+$(TARGET): $(OBJS)
+	$(CC) $(CFLAGS) -o $@ $^ $(LIBS)
+
+obj/%.o: %.cpp %.cpp
+	$(CC) -c -o $@ $<
+
+#obj/base/%.o: base/%.cpp
+#	$(CC) -c -o $@ $<
