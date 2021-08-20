@@ -120,6 +120,7 @@ HttpData::HttpData(EventLoop *loop, int connfd)
 		hState_(H_START),
 		nowReadPos_(0),
 		keepAlive_(false) {
+	//设置channel事件响应函数
 	channel_ -> setReadHandler(bind(&HttpData::handleRead, this));
 	channel_ -> setWriteHandler(bind(&HttpData::handleWrite, this));
 	channel_ -> setConnHandler(bind(&HttpData::handleConn, this));
@@ -545,5 +546,6 @@ void HttpData::handleClose() {
 
 void HttpData::newEvent() {
 	channel_ -> setEvents(DEFAULT_EVENT);
+	//往唤醒IO线程的epoll事件表上注册新的fd事件
 	loop_ -> addToPoller(channel_, DEFAULT_EXPIRED_TIME);
 }

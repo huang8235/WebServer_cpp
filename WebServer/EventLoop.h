@@ -32,8 +32,6 @@ public:
 	
 	void quit();
 
-	void updateChannel(Channel* channel);
-
 	void removeFromPoller(std::shared_ptr<Channel> channel) {
 		poller_ -> epoll_del(channel);
 	}
@@ -43,6 +41,7 @@ public:
 	void addToPoller(std::shared_ptr<Channel> channel, int timeout = 0) {
 		poller_ -> epoll_add(channel, timeout);
 	}
+	void shutdown(std::shared_ptr<Channel> channel) {shutDownWR(channel -> getFd());}
 private:
 	bool looping_;
 	const pid_t threadId_;	//所属线程ID

@@ -26,6 +26,7 @@ void Epoll::epoll_add(SP_Channel request, int timeout) {
 	int fd = request -> getFd();
 	if(timeout > 0) {
 		add_timer(request, timeout);
+		//添加到fd和httpdata对应表
 		fd2http_[fd] = request -> getHolder();
 	}
 	struct epoll_event event;
@@ -34,8 +35,10 @@ void Epoll::epoll_add(SP_Channel request, int timeout) {
 
 	request -> EqualAndUpdateLastEvents();
 
+	//添加到fd和channel对应表
 	fd2chan_[fd] = request;
 
+	//往事件表中注册fd上的事件
 	if(epoll_ctl(epollFd_, EPOLL_CTL_ADD, fd, &event) < 0) {
 		perror("epoll_add error");
 		fd2chan_[fd].reset();
@@ -72,6 +75,7 @@ void Epoll::epoll_del(SP_Channel request) {
 
 //返回活跃事件数
 std::vector<SP_Channel> Epoll::poll() {
+	//不断循环，直到取到事件就退出
 	while(true) {
 		int event_count = epoll_wait(epollFd_, &*events_.begin(), events_.size(), EPOLLWAIT_TIME);
 		if(event_count < 0) perror("epoll wait error");
@@ -82,12 +86,11 @@ std::vector<SP_Channel> Epoll::poll() {
 
 void Epoll::handleExpired() {timerManager_.handleExpiredEvent();}
 
-//分发处理函数
-
+//返回有事件请求的channel容器
 std::vector<SP_Channel> Epoll::getEventsRequest(int events_num) {
 	std::vector<SP_Channel> req_data;
 	for(int i = 0; i < events_num; ++i) {
-		//获取有事件产生的描述符
+		//获取有事件产生的描述符,封装到cur_req中，然后返回vector(req_data)
 		int fd = events_[i].data.fd;
 		
 		SP_Channel cur_req = fd2chan_[fd];

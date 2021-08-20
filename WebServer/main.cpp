@@ -41,9 +41,11 @@ int main(int argc, char* argv[]) {
 #endif
 
 	EventLoop mainLoop;
+	//准备工作:建立socket监听符，线程池，工作线程等等
 	Server myHttpServer(&mainLoop, threadNum, port);
 	myHttpServer.start();
 	std::cout << "Server start" << std::endl;
+	//主线程loop循环开始，监听新连接事件,分发事件符
 	mainLoop.loop();
 	return 0;
 }

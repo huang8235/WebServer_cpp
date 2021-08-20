@@ -85,6 +85,7 @@ void Thread::start() {
 	assert(!started_);
 	started_ = true;
 	ThreadData* data = new ThreadData(func_, name_,  &tid_, &latch_);
+	//创建一个新线程,创建好的线程会运行threadFunc函数，创建loop
 	if(pthread_create(&pthreadId_, NULL, &startThread, data)) {
 		started_ = false;
 		delete data;
