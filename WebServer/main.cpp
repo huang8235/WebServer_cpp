@@ -4,12 +4,16 @@
 #include "EventLoop.h"
 #include "Server.h"
 
+constexpr int DEFAULT_THREAD_NUM = 4;
+constexpr int DEFAULT_PORT_NUM = 80;
+constexpr auto LOG_PATH = "./WebServer.log";
+
 int main(int argc, char* argv[]) {
 
 	//默认参数
-	int threadNum = 4;
-	int port = 80;
-	std::string logPath = "./WebServer.log";
+	int threadNum = DEFAULT_THREAD_NUM;
+	int port = DEFAULT_PORT_NUM;
+	std::string logPath = LOG_PATH;
 
 	int opt;
 	const char *str = "t:l:p:";

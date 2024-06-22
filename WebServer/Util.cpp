@@ -7,6 +7,7 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#include <iostream>
 
 const int MAX_BUFF = 4096;
 ssize_t readn(int fd, void* buff, size_t n) {
@@ -148,10 +149,18 @@ void handle_for_sigpipe() {
 
 int setSocketNonBlocking(int fd) {
 	int flag = fcntl(fd, F_GETFL, 0);	//获取fd的状态标志
-	if (flag == -1) return -1;
+	if (flag == -1)
+	{
+		std::cout << "get flag failed! fd = " << fd << std::endl;
+		return -1;
+	}
 
 	flag |= O_NONBLOCK;
-	if(fcntl(fd, F_SETFL, flag) == -1)	return -1;
+	if(fcntl(fd, F_SETFL, flag) == -1)
+	{
+		std::cout << "set flag failed!" << std::endl;
+		return -1;
+	}
 	return 0;
 }
 
@@ -173,15 +182,21 @@ void shutDownWR(int fd) {
 
 int socket_bind_listen(int port) {
 	//检查port值，取正确区范围
+	std::cout << "port = " << port << std::endl;
 	if(port < 0 || port > 65535) return -1;
 
 	int listen_fd = 0;
-	if((listen_fd = socket(AF_INET, SOCK_STREAM, 0)) == -1) return -1;
-
+	if((listen_fd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
+	{
+		std::cout << "socket fail" << std::endl;
+		return -1;
+	}
 	//重用本地地址
 	int optval = 1;
-	if(setsockopt(listen_fd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)) == -1) {
+	if(setsockopt(listen_fd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)) == -1)
+	{
 		close(listen_fd);
+		std::cout << "setsockopt fail" << std::endl;
 		return -1;
 	}
 
@@ -189,8 +204,13 @@ int socket_bind_listen(int port) {
 	bzero((char*)&server_addr, sizeof(server_addr));
 	server_addr.sin_family = AF_INET;
 	server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
-	server_addr.sin_port = htons((unsigned short)port);
-	if(bind(listen_fd, (struct sockaddr*)&server_addr, sizeof(server_addr)) == -1) {
+	server_addr.sin_port = htons((uint16_t)port);
+	if(bind(listen_fd, (struct sockaddr*)&server_addr, sizeof(server_addr)) == -1)
+	{
+		perror("bind fail");
+		std::cout << "sin_family = " << server_addr.sin_family << std::endl;
+		std::cout << "s_addr = " << server_addr.sin_addr.s_addr << std::endl;
+		std::cout << "sin_port = " << server_addr.sin_port << std::endl;
 		close(listen_fd);
 		return -1;
 	}
@@ -198,12 +218,14 @@ int socket_bind_listen(int port) {
 	//开始监听
 	if(listen(listen_fd, 2048) == -1) {
 		close(listen_fd);
+		std::cout << "listen fail" << std::endl;
 		return -1;
 	}
 
 	//无效监听描述符
 	if(listen_fd == -1) {
 		close(listen_fd);
+		std::cout << "Invalid fd" << std::endl;
 		return -1;
 	}
 

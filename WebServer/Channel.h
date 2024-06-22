@@ -21,11 +21,11 @@ private:
 	typedef std::function<void()> CallBack;
 	EventLoop *loop_;
 	int fd_;
-	__uint32_t events_;		//这个channel关心的IO事件
-	__uint32_t revents_;	//目前活动的事件
+	__uint32_t events_;		// 这个channel关心的IO事件
+	__uint32_t revents_;	// 目前活动的事件
 	__uint32_t lastEvents_;
 
-	//方便找到上层持有该Channel的对象
+	// 方便找到上层持有该Channel的对象
 	std::weak_ptr<HttpData> holder_;
 	
 public:
@@ -55,7 +55,7 @@ public:
 	}
 
 
-	void handleEvents();	//Channel的核心，由EventLoop::loop()调用，它的功能是根据revents_的值分别调用不同的用户回调。
+	void handleEvents();	// Channel的核心，由EventLoop::loop()调用，它的功能是根据revents_的值分别调用不同的用户回调。
 	void handleRead();
 	void handleWrite();
 	void handleError(int fd, int err_num, std::string short_msg);
