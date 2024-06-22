@@ -2,23 +2,25 @@ CC:= g++
 CFLAGS:= -g -Wall -std=c++11 -g
 LIBS:= -lpthread
 
-TARGET = MyServer
+OBJ_DIR := ./temp/obj
+TARGET_DIR := ./temp/bin
+TARGET = $(TARGET_DIR)/MyServer
+
 SOURCE := $(wildcard *.cpp base/*.cpp)
 BASE := $(basename $(SOURCE))
-OBJS := $(addsuffix .o, $(addprefix obj/, $(BASE)))
+OBJS := $(addsuffix .o, $(addprefix $(OBJ_DIR)/, $(BASE)))
 
 .PHONY: all objs clean
 all: $(TARGET)
 objs: $(OBJS)
 clean:
 	-rm -f $(TARGET)
-	-rm -f obj/*.o
+	-rm -f $(OBJ_DIR)/*.o
 
 $(TARGET): $(OBJS)
+	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -o $@ $^ $(LIBS)
 
-obj/%.o: %.cpp %.cpp
+$(OBJ_DIR)/%.o: %.cpp
+	@mkdir -p $(dir $@)
 	$(CC) -c -o $@ $<
-
-#obj/base/%.o: base/%.cpp
-#	$(CC) -c -o $@ $<
