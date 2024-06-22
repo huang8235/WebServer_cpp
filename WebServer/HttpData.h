@@ -82,7 +82,7 @@ private:
 	static pthread_once_t once_control;
 };
 
-class HttpData : public std::enable_shared_from_this<HttpData>{
+class HttpData : public std::enable_shared_from_this<HttpData> {
 public:
 	HttpData(EventLoop *loop, int connfd);
 	~HttpData() {close(fd_);}

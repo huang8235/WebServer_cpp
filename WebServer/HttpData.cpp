@@ -15,8 +15,10 @@ pthread_once_t MimeType::once_control = PTHREAD_ONCE_INIT;
 std::unordered_map<std::string, std::string> MimeType::mime;
 
 const __uint32_t DEFAULT_EVENT = EPOLLIN | EPOLLET | EPOLLONESHOT;
-const int DEFAULT_EXPIRED_TIME = 2000;			 	//ms
-const int DEFAULT_KEEP_ALIVE_TIME = 5 * 60 * 1000;	//ms
+const int DEFAULT_EXPIRED_TIME = 2000;			 	// ms
+const int DEFAULT_KEEP_ALIVE_TIME = 5 * 60 * 1000;	// ms
+
+constexpr auto HTML_DIR = "HTML/";
 
 char favicon[555] = {
     '\x89', 'P',    'N',    'G',    '\xD',  '\xA',  '\x1A', '\xA',  '\x0',
@@ -121,9 +123,9 @@ HttpData::HttpData(EventLoop *loop, int connfd)
 		nowReadPos_(0),
 		keepAlive_(false) {
 	//设置channel事件响应函数
-	channel_ -> setReadHandler(bind(&HttpData::handleRead, this));
-	channel_ -> setWriteHandler(bind(&HttpData::handleWrite, this));
-	channel_ -> setConnHandler(bind(&HttpData::handleConn, this));
+	channel_->setReadHandler(bind(&HttpData::handleRead, this));
+	channel_->setWriteHandler(bind(&HttpData::handleWrite, this));
+	channel_->setConnHandler(bind(&HttpData::handleConn, this));
 }
 
 void HttpData::reset() {
@@ -312,14 +314,14 @@ URIState HttpData::parseURI() {
 	}
 
 	pos = request_line.find("/", pos);
-	if(pos < 0) {
-		fileName_ = "index.html";
+	if (pos == std::string::npos) {
+		fileName_ = std::string(HTML_DIR) + "index.html";
 		HTTPVersion_ = HTTP_11;
 		return PARSE_URI_SUCCESS;
 	}
 	else {
 		size_t _pos = request_line.find(' ', pos);
-		if(_pos < 0)
+		if (_pos < 0)
 			return PARSE_URI_ERROR;
 		else {
 			if(_pos - pos > 1) {
@@ -330,7 +332,7 @@ URIState HttpData::parseURI() {
 				}
 			}
 			else
-				fileName_ = "index.html";
+				fileName_ = std::string(HTML_DIR) + "index.html";
 		}
 		pos = _pos;
 	}
@@ -482,7 +484,7 @@ AnalysisState HttpData::analysisRequest() {
 		}
 
 		struct stat sbuf;
-		if(stat(fileName_.c_str(), &sbuf) < 0) {
+		if (stat(fileName_.c_str(), &sbuf) < 0) {
 			header.clear();
 			handleError(fd_, 404, "Not Found!");
 			return ANALYSIS_ERROR;
@@ -521,7 +523,7 @@ void HttpData::handleError(int fd, int err_num, std::string short_msg) {
 	short_msg = " " + short_msg;
 	char send_buff[4096];
 	std::string body_buff, header_buff;
-	body_buff += "<html><title>哎~出错了</title>";
+	body_buff += "<html><title>error occur</title>";
 	body_buff += "<body bgcolor=\"ffffff\">";
 	body_buff += std::to_string(err_num) + short_msg;
 	body_buff += "<hr><em> Huang's Web Server</em>\n</body></html>";

@@ -3,7 +3,7 @@ CFLAGS:= -g -Wall -std=c++11 -g
 LIBS:= -lpthread
 
 OBJ_DIR := ./temp/obj
-TARGET_DIR := ./temp/bin
+TARGET_DIR := ./app
 TARGET = $(TARGET_DIR)/MyServer
 
 SOURCE := $(wildcard *.cpp base/*.cpp)

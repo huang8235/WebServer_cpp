@@ -18,17 +18,17 @@ public:
 	EventLoop();
 	~EventLoop();
 
-	void loop();	//事件循环
+	void loop();	// 事件循环
 	void runInLoop(Functor&& cb);
 	void queueInLoop(Functor&& cb);
 
 	bool isInLoopThread() const { return threadId_ == CurrentThread::tid(); }
 
-	/*停止不属于当前线程的循环*/
+	/* 停止不属于当前线程的循环 */
 	void assertInLoopThread() {
 		assert(isInLoopThread());
 	}
-	//EventLoop* getEventLoopOfCurrentThread();
+	// EventLoop* getEventLoopOfCurrentThread();
 	
 	void quit();
 
@@ -42,9 +42,10 @@ public:
 		poller_ -> epoll_add(channel, timeout);
 	}
 	void shutdown(std::shared_ptr<Channel> channel) {shutDownWR(channel -> getFd());}
+
 private:
 	bool looping_;
-	const pid_t threadId_;	//所属线程ID
+	const pid_t threadId_;	// 所属线程ID
 	std::shared_ptr<Epoll> poller_;
 	int wakeupFd_;
 	bool quit_;
